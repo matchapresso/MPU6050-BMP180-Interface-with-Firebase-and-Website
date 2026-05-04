@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictive Maintenance Dashboard</title>
+    <!-- Tailwind CSS untuk styling kilat -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js untuk grafik tren -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-900 text-white font-sans p-6">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 border-b border-slate-700 pb-4">
+            <h1 class="text-3xl font-bold text-blue-400">Monitoring Mesin Real-Time</h1>
+            <p class="text-slate-400 text-sm mt-1">Sistem Deteksi Anomali Vibrasi (ID: Pompa-Utama-01)</p>
+        </header>
+
+        <!-- Kartu Indikator -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Kartu Status -->
+            <div id="cardStatus" class="bg-slate-800 p-6 rounded-xl border-l-4 border-slate-500 shadow-lg flex flex-col justify-center items-center transition-colors duration-300">
+                <h2 class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-2">Status Mesin</h2>
+                <div id="teksStatus" class="text-3xl font-bold text-white">Menunggu...</div>
+            </div>
+
+            <!-- Kartu Vibrasi -->
+            <div class="bg-slate-800 p-6 rounded-xl shadow-lg">
+                <h2 class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-2">Vibrasi Aktual</h2>
+                <div class="flex items-baseline gap-2">
+                    <span id="angkaVibrasi" class="text-4xl font-bold text-blue-300">0.00</span>
+                    <span class="text-slate-400">m/s²</span>
+                </div>
+            </div>
+
+            <!-- Kartu Suhu -->
+            <div class="bg-slate-800 p-6 rounded-xl shadow-lg">
+                <h2 class="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-2">Suhu Ruang</h2>
+                <div class="flex items-baseline gap-2">
+                    <span id="angkaSuhu" class="text-4xl font-bold text-orange-300">0.0</span>
+                    <span class="text-slate-400">°C</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Area Grafik -->
+        <div class="bg-slate-800 p-6 rounded-xl shadow-lg">
+            <h2 class="text-lg font-semibold mb-4 text-slate-200">Tren Vibrasi (20 Data Terakhir)</h2>
+            <div class="relative h-72 w-full">
+                <canvas id="vibrasiChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logika Firebase & Chart.js -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, query, limitToLast, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        // 1. Konfigurasi Firebase-mu
+        const firebaseConfig = {
+            databaseURL: "https://logdatatp2-default-rtdb.firebaseio.com/"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // 2. Setup Chart.js
+        const ctx = document.getElementById('vibrasiChart').getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [], // Label kosong dulu
+                datasets: [{
+                    label: 'Getaran Aktif (m/s²)',
+                    data: [],
+                    borderColor: '#60A5FA', // Warna biru Tailwind
+                    backgroundColor: 'rgba(96, 165, 250, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4, // Bikin garisnya melengkung smooth
+                    pointRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: '#334155' }, 
+                        ticks: { color: '#94A3B8' },
+                        title: {
+                            display: true,
+                            text: 'Acceleration (m/s²)',
+                            color: '#94A3B8',
+                            font: { size: 12, weight: 'bold' }
+                        }
+                    },
+                    x: { 
+                        grid: { display: false }, 
+                        ticks: { display: false }, // Angka/label titiknya tetap disembunyikan biar rapi
+                        title: {
+                            display: true,
+                            text: 'Waktu (sekon)',
+                            color: '#94A3B8',
+                            font: { size: 12, weight: 'bold' },
+                            padding: { top: 10 }
+                        }
+                    } 
+                },
+                plugins: { legend: { display: false } },
+                animation: { duration: 400 }
+            }
+        });
+
+        // 3. Tarik Data Firebase Real-Time (Ambil 20 data terakhir)
+        const sensorRef = query(ref(db, 'sensor'), limitToLast(20));
+
+        onValue(sensorRef, (snapshot) => {
+            const dataObj = snapshot.val();
+            if (!dataObj) return;
+
+            // Karena data Firebase bentuknya object, kita ubah jadi array
+            const dataArray = Object.values(dataObj);
+            
+            // Ambil data paling ujung (paling baru) untuk ditampilkan di Kartu
+            const dataTerbaru = dataArray[dataArray.length - 1];
+            
+            // Update Angka di Kartu
+            document.getElementById('angkaVibrasi').innerText = dataTerbaru.vibrasi_aktual.toFixed(2);
+            document.getElementById('angkaSuhu').innerText = dataTerbaru.suhu_ruang.toFixed(1);
+            
+            // Update Status & Warna Kartu
+            const cardStatus = document.getElementById('cardStatus');
+            const teksStatus = document.getElementById('teksStatus');
+            teksStatus.innerText = dataTerbaru.status.toUpperCase();
+
+            // Ubah warna border & teks sesuai status
+            cardStatus.className = "bg-slate-800 p-6 rounded-xl border-l-4 shadow-lg flex flex-col justify-center items-center transition-colors duration-300";
+            if (dataTerbaru.status === "Normal") {
+                cardStatus.classList.add("border-green-500");
+                teksStatus.classList.replace(teksStatus.classList[teksStatus.classList.length-1], "text-green-400");
+            } else if (dataTerbaru.status === "Waspada") {
+                cardStatus.classList.add("border-yellow-500");
+                teksStatus.classList.replace(teksStatus.classList[teksStatus.classList.length-1], "text-yellow-400");
+            } else {
+                cardStatus.classList.add("border-red-500");
+                teksStatus.classList.replace(teksStatus.classList[teksStatus.classList.length-1], "text-red-400");
+            }
+
+            // Update Grafik (Chart.js)
+            const getaranArray = dataArray.map(item => item.vibrasi_aktual);
+            const labelArray = dataArray.map((_, index) => index); // Bikin label dummy 0,1,2..
+
+            chart.data.labels = labelArray;
+            chart.data.datasets[0].data = getaranArray;
+            chart.update(); // Render ulang grafik
+        });
+    </script>
+</body>
+</html>
