@@ -1,4 +1,4 @@
-# ESP32 Predictive Maintenance Simulation
+# ESP32 Predictive Maintenance Simulation with MPU6050 and BMP180
 
 ## English
 
