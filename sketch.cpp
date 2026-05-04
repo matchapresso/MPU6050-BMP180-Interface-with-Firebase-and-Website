@@ -10,9 +10,9 @@
 #include <math.h> // Tambahkan library math untuk perhitungan akar
 
 //Konfigurasi WiFi & Firebase
-const char* ssid = "Wokwi-GUEST";
-const char* password = "";
-const char* firebaseURL = "https://logdatatp2-default-rtdb.firebaseio.com/sensor.json"; 
+const char* ssid = //"enter-your-ssid";
+const char* password = //"enter-your-password";
+const char* firebaseURL = //"https://your-firebase-link/sensor.json"; 
 
 // --- Konfigurasi Pin ---
 #define RST_PIN 4
