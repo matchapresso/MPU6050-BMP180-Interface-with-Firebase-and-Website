@@ -7,7 +7,7 @@ This project simulates a predictive maintenance system using an ESP32 microcontr
 
 ### Features
 *   **RFID Authentication:** Uses an MFRC522 module to read technician ID cards before initializing sensor readings.
-*   **Vibration Monitoring:** Utilizes an MPU6050 accelerometer to calculate the active vibration magnitude (excluding static gravity)[cite: 1].
+*   **Vibration Monitoring:** Utilizes an MPU6050 accelerometer to calculate the active vibration magnitude (excluding static gravity).
 *   **Environmental Monitoring:** Uses a BMP180 (BMP085 compatible) sensor to read room temperature and pressure.
 *   **Visual Status Indicators:** 
     *   🟢 **Green LED:** Normal operation (Vibration < 3.0 m/s²).
