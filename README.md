@@ -40,3 +40,8 @@ To run this project, ensure you have the following libraries installed:
 *   `Adafruit_MPU6050` & `Adafruit_Sensor`
 *   `Adafruit_BMP085`
 *   `ArduinoJson`
+
+### Results
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/b36f7608-4c3c-4c75-b813-d21135a7a662" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/490408b6-b749-49a9-af6c-74c4149703b5" />
+
