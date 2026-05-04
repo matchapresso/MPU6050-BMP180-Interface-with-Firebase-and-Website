@@ -3,12 +3,12 @@
 ## English
 
 ### Description
-This project simulates a predictive maintenance system using an ESP32 microcontroller. It monitors machine vibration and environmental conditions (temperature and pressure) after verifying an authorized technician via an RFID scanner. The system uses visual LED indicators to display the machine's health status in real-time.
+This project simulates a predictive maintenance system using an ESP32 microcontroller with Wokwi and Firebase as Realtime Database. It monitors machine vibration and environmental conditions (temperature and pressure) after verifying an authorized technician via an RFID scanner. The system uses visual LED indicators to display the machine's health status in real-time.
 
 ### Features
-*   **RFID Authentication:** Uses an MFRC522 module to read technician ID cards before initializing sensor readings[cite: 1].
+*   **RFID Authentication:** Uses an MFRC522 module to read technician ID cards before initializing sensor readings.
 *   **Vibration Monitoring:** Utilizes an MPU6050 accelerometer to calculate the active vibration magnitude (excluding static gravity)[cite: 1].
-*   **Environmental Monitoring:** Uses a BMP180 (BMP085 compatible) sensor to read room temperature and pressure[cite: 1].
+*   **Environmental Monitoring:** Uses a BMP180 (BMP085 compatible) sensor to read room temperature and pressure.
 *   **Visual Status Indicators:** 
     *   🟢 **Green LED:** Normal operation (Vibration < 3.0 m/s²).
     *   🟡 **Yellow LED:** Warning / Indication of anomaly (Vibration between 3.0 and 7.0 m/s²).
